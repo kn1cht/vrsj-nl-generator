@@ -26,10 +26,39 @@ function App() {
   // ダークモードの設定を読み込む
   useEffect(() => {
     const savedMode = localStorage.getItem('darkMode');
-    if (savedMode === 'true') {
-      setDarkMode(true);
-      document.documentElement.classList.add('dark-mode');
+    
+    if (savedMode !== null) {
+      // ローカルストレージに設定が保存されている場合はそれを優先
+      const isDarkMode = savedMode === 'true';
+      setDarkMode(isDarkMode);
+      if (isDarkMode) {
+        document.documentElement.classList.add('dark-mode');
+      }
+    } else {
+      // ローカルストレージに設定がない場合はOSの設定に従う
+      const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setDarkMode(prefersDarkMode);
+      if (prefersDarkMode) {
+        document.documentElement.classList.add('dark-mode');
+      }
     }
+    
+    // OS設定の変更を監視
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      // ローカルストレージに設定がない場合のみOS設定に従う
+      if (localStorage.getItem('darkMode') === null) {
+        setDarkMode(e.matches);
+        if (e.matches) {
+          document.documentElement.classList.add('dark-mode');
+        } else {
+          document.documentElement.classList.remove('dark-mode');
+        }
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   // ダークモードの切り替え
