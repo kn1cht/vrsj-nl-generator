@@ -5,7 +5,7 @@ import TextFormatter, { DEFAULT_FORMAT_SETTINGS, FormatSettings, formatTextForMa
 
 type NewsletterData = {
   title: string;
-  editor: string;
+  author_name: string;
   content: string;
 }
 
@@ -15,12 +15,13 @@ function App() {
   const [activeTab, setActiveTab] = useState<Tab>('editor');
   const [newsletterData, setNewsletterData] = useState<NewsletterData>({
     title: '',
-    editor: '',
+    author_name: '',
     content: ''
   });
   const [generatedNewsletter, setGeneratedNewsletter] = useState<string>('');
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [formatSettings, setFormatSettings] = useState<FormatSettings>(DEFAULT_FORMAT_SETTINGS);
+  const [isCopied, setIsCopied] = useState<boolean>(false);
 
   // ダークモードの設定を読み込む
   useEffect(() => {
@@ -47,10 +48,9 @@ function App() {
 
   // ニューズレターテンプレート
   const NEWSLETTER_TEMPLATE = `{title}
-
+{author_name}
 {content}
-
-編集: {editor}`;
+`;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -100,7 +100,12 @@ function App() {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedNewsletter);
-    alert('コピーしました！');
+    setIsCopied(true);
+    
+    // 3秒後に元の状態に戻す
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 3000);
   };
 
   const exportToJson = () => {
@@ -154,14 +159,14 @@ function App() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="editor">編集者</label>
+                  <label htmlFor="author_name">筆者</label>
                   <input
                     type="text"
-                    id="editor"
-                    name="editor"
-                    value={newsletterData.editor}
+                    id="author_name"
+                    name="author_name"
+                    value={newsletterData.author_name}
                     onChange={handleInputChange}
-                    placeholder="編集者の名前"
+                    placeholder="所属・氏名"
                   />
                 </div>
 
@@ -269,9 +274,24 @@ function App() {
           <section className="output-section">
             <h2>生成されたニューズレター</h2>
             <div className="newsletter-preview">
+              <button 
+                onClick={copyToClipboard} 
+                className={`copy-button ${isCopied ? 'copied' : ''}`}
+              >
+                {isCopied ? (
+                  <>
+                    <span className="copy-icon">✓</span>
+                    <span>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="copy-icon">📋</span>
+                    <span>Copy</span>
+                  </>
+                )}
+              </button>
               <pre>{generatedNewsletter}</pre>
             </div>
-            <button onClick={copyToClipboard} className="copy-btn">クリップボードにコピー</button>
           </section>
         )}
       </main>
