@@ -5,30 +5,36 @@ type TextRule = {
   name: string;
   description: string;
   pattern: RegExp;
-  replace?: ((match: string) => string) | string;
+  replace?: ((match: string) => string) | string | ((match: string, ...args: string[]) => string);
 };
 
 const TEXT_RULES: TextRule[] = [
-  {
-    id: 'double-space',
-    name: '二重スペース',
-    description: '二重スペースを検出します',
-    pattern: /\s{2,}/g,
-    replace: ' '
-  },
-  {
-    id: 'ending-punctuation',
-    name: '文末の句読点',
-    description: '文末の句読点が抜けている可能性があります',
-    pattern: /([^。！？.!?])\n/g,
-    replace: '$1。\n'
-  },
   {
     id: 'full-width-numbers',
     name: '全角数字',
     description: '全角数字を半角数字に変換します',
     pattern: /[０-９]/g,
     replace: (match: string) => String.fromCharCode(match.charCodeAt(0) - 0xFEE0)
+  },
+  {
+    id: 'paragraph-indent',
+    name: '段落頭字下げ',
+    description: '句点を含む段落の先頭に全角スペースを挿入します',
+    pattern: /(^|\n)([^\u3000\s])(.*?[。．.！!？?]+.*?)(?=\n|$)/g,
+    replace: (match: string, p1: string, p2: string, p3: string) => {
+      return `${p1}\u3000${p2}${p3}`;
+    }
+  },
+  {
+    id: 'punctuation',
+    name: '句読点',
+    description: '句読点を，．に統一します',
+    pattern: /([、。])/g,
+    replace: (match: string) => {
+      if (match === '、') return '，';
+      if (match === '。') return '．';
+      return match;
+    }
   }
 ];
 

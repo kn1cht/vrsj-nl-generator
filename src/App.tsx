@@ -46,7 +46,7 @@ function App() {
   };
 
   // ニューズレターテンプレート
-  const NEWSLETTER_TEMPLATE = `# {title}
+  const NEWSLETTER_TEMPLATE = `{title}
 
 {content}
 
