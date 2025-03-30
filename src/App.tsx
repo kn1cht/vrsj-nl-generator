@@ -1,32 +1,57 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import './App.css'
-import TextRules from './components/TextRules'
 import TextFormatter, { DEFAULT_FORMAT_SETTINGS, FormatSettings, formatTextForMail } from './components/TextFormatter'
-
-type NewsletterData = {
-  title: string;
-  author_name: string;
-  content: string;
-}
+import TemplateManager from './components/TemplateManager'
+import EditorTabs, { NewsletterData, EditorSubTab } from './components/EditorTabs'
+import defaultTemplate from './assets/templates/newsletter.txt?raw'
 
 type Tab = 'editor' | 'settings' | 'data';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('editor');
+  const [activeEditorSubTab, setActiveEditorSubTab] = useState<EditorSubTab>('main');
+
+  // 現在の年月を取得して初期値として設定
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear().toString();
+  const currentMonth = (currentDate.getMonth() + 1).toString();
+
   const [newsletterData, setNewsletterData] = useState<NewsletterData>({
-    title: '',
-    author_name: '',
-    content: ''
+    // メイン - 現在の年月を初期値として設定
+    publication_year: currentYear,
+    no_month: currentMonth,
+    editor_name: '',
+
+    // 参加報告
+    report_title: '',
+    report_author_name: '',
+    report_content: '',
+
+    // 行事
+    shusai_kyosai_events: '',
+    kyosan_events: '',
+
+    // 関連情報
+    journal_cfps: '',
+    international_cfps: '',
+    international_conferences: ''
   });
+
   const [generatedNewsletter, setGeneratedNewsletter] = useState<string>('');
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [formatSettings, setFormatSettings] = useState<FormatSettings>(DEFAULT_FORMAT_SETTINGS);
   const [isCopied, setIsCopied] = useState<boolean>(false);
+  const [newsletterTemplate, setNewsletterTemplate] = useState<string>(defaultTemplate);
+
+  // テンプレート変更のハンドラー（useCallbackでメモ化）
+  const handleTemplateChange = useCallback((template: string) => {
+    setNewsletterTemplate(template);
+  }, []);
 
   // ダークモードの設定を読み込む
   useEffect(() => {
     const savedMode = localStorage.getItem('darkMode');
-    
+
     if (savedMode !== null) {
       // ローカルストレージに設定が保存されている場合はそれを優先
       const isDarkMode = savedMode === 'true';
@@ -42,7 +67,7 @@ function App() {
         document.documentElement.classList.add('dark-mode');
       }
     }
-    
+
     // OS設定の変更を監視
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
@@ -56,7 +81,7 @@ function App() {
         }
       }
     };
-    
+
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
@@ -75,12 +100,6 @@ function App() {
     localStorage.setItem('darkMode', String(newMode));
   };
 
-  // ニューズレターテンプレート
-  const NEWSLETTER_TEMPLATE = `{title}
-{author_name}
-{content}
-`;
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNewsletterData(prev => ({
@@ -92,37 +111,43 @@ function App() {
   const handleTextRuleFix = (fixedContent: string) => {
     setNewsletterData(prev => ({
       ...prev,
-      content: fixedContent
+      report_content: fixedContent
     }));
   };
 
-  // Webニューズレター生成（整形なし）
-  const generateWebNewsletter = () => {
-    // テンプレートを解析して各要素を挿入
-    let result = NEWSLETTER_TEMPLATE;
+  // ニューズレター生成の共通関数
+  const generateNewsletter = (formatForText = false) => {
+    // テンプレートが読み込まれていない場合は処理しない
+    if (!newsletterTemplate) {
+      console.error('テンプレートが読み込まれていません');
+      alert('テンプレートが読み込まれていません。設定タブからテンプレートを選択してください。');
+      return;
+    }
 
-    // 各プレースホルダーを対応する値で置換
+    // テンプレートを解析して各要素を挿入
+    let result = newsletterTemplate;
+
+    // 各プレースホルダーを対応する値で置換（全ての出現を置換）
     Object.entries(newsletterData).forEach(([key, value]) => {
-      const placeholder = `{${key}}`;
+      // ${key} 形式のプレースホルダーを置換
+      const placeholder = new RegExp(`\\$\\{${key}\\}`, 'g');
       result = result.replace(placeholder, value);
     });
 
-    setGeneratedNewsletter(result.trim());
-  };
+    // Vol値を計算して置換（publication_year - 1995）
+    const publicationYear = parseInt(newsletterData.publication_year);
+    if (!isNaN(publicationYear)) {
+      const vol = publicationYear - 1995;
+      const volPlaceholder = new RegExp('\\$\\{vol\\}', 'g');
+      result = result.replace(volPlaceholder, vol.toString());
+    }
 
-  // テキストメール用ニューズレター生成（整形あり）
-  const generateTextNewsletter = () => {
-    // テンプレートを解析して各要素を挿入
-    let result = NEWSLETTER_TEMPLATE;
-
-    // 各プレースホルダーを対応する値で置換
-    Object.entries(newsletterData).forEach(([key, value]) => {
-      const placeholder = `{${key}}`;
-      result = result.replace(placeholder, value);
-    });
-
-    // 行幅整形処理を適用
-    result = formatTextForMail(result.trim(), formatSettings);
+    // テキストメール用の場合は行幅整形処理を適用
+    if (formatForText) {
+      result = formatTextForMail(result.trim(), formatSettings);
+    } else {
+      result = result.trim();
+    }
 
     setGeneratedNewsletter(result);
   };
@@ -130,7 +155,7 @@ function App() {
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedNewsletter);
     setIsCopied(true);
-    
+
     // 3秒後に元の状態に戻す
     setTimeout(() => {
       setIsCopied(false);
@@ -172,70 +197,19 @@ function App() {
     switch (activeTab) {
       case 'editor':
         return (
-          <div className="main-content">
-            <div className="editor-section">
-              <section className="input-section">
-                <div className="form-group">
-                  <label htmlFor="title">タイトル</label>
-                  <input
-                    type="text"
-                    id="title"
-                    name="title"
-                    value={newsletterData.title}
-                    onChange={handleInputChange}
-                    placeholder="ニューズレターのタイトル"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="author_name">筆者</label>
-                  <input
-                    type="text"
-                    id="author_name"
-                    name="author_name"
-                    value={newsletterData.author_name}
-                    onChange={handleInputChange}
-                    placeholder="所属・氏名"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="content">本文</label>
-                  <textarea
-                    id="content"
-                    name="content"
-                    value={newsletterData.content}
-                    onChange={handleInputChange}
-                    placeholder="ニューズレターの本文をここに入力してください"
-                    rows={10}
-                  />
-                </div>
-
-                <div className="generation-buttons">
-                  <button onClick={generateTextNewsletter} className="text-gen-btn">
-                    テキストメール用に生成
-                  </button>
-                  <button onClick={generateWebNewsletter} className="web-gen-btn">
-                    Web用に生成
-                  </button>
-                </div>
-              </section>
-            </div>
-
-            <div className="rules-section">
-              <section className="input-section">
-                <h3>テキスト校正</h3>
-                <TextRules
-                  text={newsletterData.content}
-                  onApplyFix={handleTextRuleFix}
-                />
-              </section>
-            </div>
-          </div>
+          <EditorTabs
+            activeEditorSubTab={activeEditorSubTab}
+            setActiveEditorSubTab={setActiveEditorSubTab}
+            newsletterData={newsletterData}
+            handleInputChange={handleInputChange}
+            handleTextRuleFix={handleTextRuleFix}
+            generateNewsletter={generateNewsletter}
+          />
         );
       case 'settings':
         return (
           <div className="settings-content">
+            <TemplateManager onTemplateChange={handleTemplateChange} />
             <TextFormatter
               settings={formatSettings}
               onSettingsChange={setFormatSettings}
@@ -262,6 +236,11 @@ function App() {
     }
   };
 
+  // 生成したニューズレターをクリアする
+  const clearGeneratedNewsletter = () => {
+    setGeneratedNewsletter('');
+  };
+
   return (
     <div className="app-container">
       <header>
@@ -275,7 +254,7 @@ function App() {
         </button>
       </header>
 
-      <main>
+      <main className="main-content">
         <div className="tabs">
           <button
             className={`tab ${activeTab === 'editor' ? 'active' : ''}`}
@@ -301,10 +280,19 @@ function App() {
 
         {generatedNewsletter && (
           <section className="output-section">
-            <h2>生成されたニューズレター</h2>
+            <div className="output-header">
+              <h2>生成されたニューズレター</h2>
+              <button
+                onClick={clearGeneratedNewsletter}
+                className="clear-btn"
+                aria-label="クリア"
+              >
+                ✕
+              </button>
+            </div>
             <div className="newsletter-preview">
-              <button 
-                onClick={copyToClipboard} 
+              <button
+                onClick={copyToClipboard}
                 className={`copy-button ${isCopied ? 'copied' : ''}`}
               >
                 {isCopied ? (

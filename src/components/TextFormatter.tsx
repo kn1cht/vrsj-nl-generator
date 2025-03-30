@@ -3,7 +3,7 @@ import { useState } from 'react';
 // デフォルトの禁則文字設定
 export const DEFAULT_FORMAT_SETTINGS = {
   maxCharsPerLine: 74, // 半角文字数
-  dropChars: ';.､｡、。，．｣」』）〕］｝〉】', // ぶら下げ文字
+  dropChars: ';・.､｡、。，．｣」』）〕］｝〉】', // ぶら下げ文字
   lineStartForbidChars: ']}):;?!ﾞﾟ･~：；？！゛゜‐\'"）〕］｝〉」』】', // 行頭禁則文字
   lineEndForbidChars: '[{(\'"（〔［｛〈「『【「' // 行末禁則文字
 };

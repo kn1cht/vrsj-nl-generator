@@ -55,6 +55,10 @@ main {
   width: 100%;
 }
 
+.main-content {
+  min-width: 750px;
+}
+
 header {
   margin-bottom: 2rem;
   text-align: center;
@@ -97,13 +101,18 @@ header h1 {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
-  margin-bottom: 2rem;
   width: 100%;
 }
 
 .editor-section {
   flex: 2;
   min-width: 800px;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-content {
+  margin-bottom: 1rem;
 }
 
 .rules-section {
@@ -143,6 +152,13 @@ header h1 {
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: border-color 0.15s ease-in-out, background-color 0.3s ease, color 0.3s ease;
+}
+
+.form-group .form-help {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 .form-group input:focus,
@@ -209,12 +225,41 @@ header h1 {
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  margin-top: 1rem;
+  margin-top: 0rem;
+  margin-bottom: 1rem;
 }
 
-.output-section h2 {
-  color: var(--text-secondary);
+.output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
+}
+
+.output-header h2 {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.clear-btn {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.clear-btn:hover {
+  background-color: #ef4444;
+  color: white;
+  border-color: #ef4444;
 }
 
 .newsletter-preview {
@@ -406,7 +451,7 @@ header h1 {
 /* タブ */
 .tabs {
   display: flex;
-  margin-bottom: 1rem;
+  margin-bottom: 0.25rem;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -494,7 +539,6 @@ header h1 {
 .generation-buttons {
   display: flex;
   gap: 1rem;
-  margin-top: 1.5rem;
 }
 
 .text-gen-btn, 
@@ -535,4 +579,85 @@ header h1 {
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
+}
+
+/* テンプレート管理 */
+.template-manager {
+  background-color: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.template-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.template-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+/* エディタサブタブ */
+.editor-subtabs {
+  display: flex;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  overflow-x: auto;
+}
+
+.editor-subtab {
+  padding: 0.6rem 1.2rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.editor-subtab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.editor-subtab:hover:not(.active) {
+  color: var(--text-secondary);
+  background-color: var(--bg-tertiary);
+}
+
+/* インライン校正セクション */
+.rules-section-inline {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+.rules-section-inline h3 {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+/* 既存のフォームグループスタイルの調整 */
+.form-group textarea {
+  resize: vertical;
+}
+
+.action-panel {
+  background-color: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  margin-top: 1rem;
 }
