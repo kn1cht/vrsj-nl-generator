@@ -87,7 +87,7 @@ const TextRules = ({ text, onApplyFix }: TextRulesProps) => {
             </div>
             {rule.replace && (
               <button className="fix-button" onClick={() => handleApplyFix(rule)}>
-                修正を適用
+                適用
               </button>
             )}
           </li>
