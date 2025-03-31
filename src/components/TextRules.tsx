@@ -5,16 +5,24 @@ type TextRule = {
   name: string;
   description: string;
   pattern: RegExp;
-  replace?: ((match: string) => string) | string | ((match: string, ...args: string[]) => string);
+  replace?: ((match: string) => string | null) | string | ((match: string, ...args: string[]) => string | null);
+  detectIssues?: (matches: RegExpMatchArray | null) => number;
 };
 
 const TEXT_RULES: TextRule[] = [
   {
-    id: 'full-width-numbers',
-    name: '全角数字',
-    description: '全角数字を半角数字に変換します',
-    pattern: /[０-９]/g,
+    id: 'full-width-alphanumeric',
+    name: '全角英数字',
+    description: '全角英数字を半角英数字に変換します',
+    pattern: /[Ａ-Ｚａ-ｚ０-９]/g,
     replace: (match: string) => String.fromCharCode(match.charCodeAt(0) - 0xFEE0)
+  },
+  {
+    id: 'paragraph-spacing',
+    name: '段落間の空行',
+    description: '段落間の空行を削除します',
+    pattern: /\n\s*\n/g,
+    replace: '\n'
   },
   {
     id: 'paragraph-indent',
@@ -35,6 +43,39 @@ const TEXT_RULES: TextRule[] = [
       if (match === '。') return '．';
       return match;
     }
+  },
+  {
+    id: 'url-format',
+    name: 'URL形式',
+    description: 'URLの末尾を適切な形式に修正します',
+    pattern: /(https?:\/\/[^\s"'<>()[\]{}]+)(?=[\s,.!?;"'<>()[\]{}]|$)/g,
+    replace: (match: string) => {
+      // 既に形式が正しい場合は元のURLを返す
+      const originalMatch = match;
+
+      // index.htmlで終わるURLから末尾を削除
+      if (match.endsWith('/index.html')) {
+        match = match.slice(0, -11); // '/index.html'の11文字を削除
+      }
+
+      // ドメイン名だけで終わる場合や、ファイル名・クエリパラメータがない場合はスラッシュを追加
+      if (!match.endsWith('/') && !match.includes('?') && !/\/[^/]+\.[^/]+$/.test(match)) {
+        match = match + '/';
+      }
+
+      // 変更がない場合は null を返して置換しないようにする
+      return match === originalMatch ? null : match;
+    },
+    detectIssues: (matches: RegExpMatchArray | null) => {
+      if (!matches) return 0;
+      return matches.filter(match => {
+        // index.htmlで終わるURL
+        if (match.endsWith('/index.html')) return true;
+        // ドメイン名だけで終わる場合や、ファイル名・クエリパラメータがない場合
+        if (!match.endsWith('/') && !match.includes('?') && !/\/[^/]+\.[^/]+$/.test(match)) return true;
+        return false;
+      }).length;
+    }
   }
 ];
 
@@ -49,10 +90,8 @@ const TextRules = ({ text, onApplyFix }: TextRulesProps) => {
   useEffect(() => {
     const foundIssues = TEXT_RULES.map(rule => {
       const matches = text.match(rule.pattern);
-      return {
-        rule,
-        count: matches ? matches.length : 0
-      };
+      const count = rule.detectIssues ? rule.detectIssues(matches) : (matches ? matches.length : 0);
+      return { rule, count };
     }).filter(issue => issue.count > 0);
 
     setIssues(foundIssues);
@@ -64,7 +103,11 @@ const TextRules = ({ text, onApplyFix }: TextRulesProps) => {
       if (typeof rule.replace === 'string') {
         fixedText = text.replace(rule.pattern, rule.replace);
       } else {
-        fixedText = text.replace(rule.pattern, rule.replace);
+        fixedText = text.replace(rule.pattern, (...args) => {
+          const result = rule.replace && typeof rule.replace === 'function' ? rule.replace(...args) : args[0];
+          // nullが返された場合は元のテキストを使用
+          return result === null ? args[0] : result;
+        });
       }
       onApplyFix(fixedText);
     }
@@ -97,4 +140,4 @@ const TextRules = ({ text, onApplyFix }: TextRulesProps) => {
   );
 };
 
-export default TextRules; 
+export default TextRules;
