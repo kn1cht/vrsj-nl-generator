@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import TextFormatter, { DEFAULT_FORMAT_SETTINGS, FormatSettings, formatTextForMail } from './components/TextFormatter'
 import TemplateSettings from './components/TemplateSettings'
-import EditorTabs, { NewsletterData, EditorSubTab } from './components/EditorTabs'
+import EditorTabs, { NewsletterData, EditorSubTab, ReportEntry } from './components/EditorTabs'
 import defaultTemplate from './assets/templates/newsletter.txt?raw'
 import chairDefaultContent from './assets/templates/chair.txt?raw'
 import committeeDefaultContent from './assets/templates/committee.txt?raw'
@@ -25,9 +25,7 @@ function App() {
     editor_name: '',
 
     // 参加報告
-    report_title: '',
-    report_author_name: '',
-    report_content: '',
+    reports: [{ title: '', author: '', content: '' }],
 
     // 行事
     shusai_kyosai_events: '',
@@ -106,11 +104,61 @@ function App() {
     }));
   };
 
-  const handleTextRuleFix = (fixedContent: string) => {
+  // 参加報告のフィールド変更ハンドラー
+  const handleReportChange = (index: number, field: keyof ReportEntry, value: string) => {
+    setNewsletterData(prev => {
+      const newReports = [...prev.reports];
+      newReports[index] = { ...newReports[index], [field]: value };
+      return { ...prev, reports: newReports };
+    });
+  };
+
+  // 参加報告テキスト校正ハンドラー
+  const handleTextRuleFix = (fixedContent: string, index: number) => {
+    setNewsletterData(prev => {
+      const newReports = [...prev.reports];
+      newReports[index] = { ...newReports[index], content: fixedContent };
+      return { ...prev, reports: newReports };
+    });
+  };
+
+  // 参加報告を追加
+  const addReport = () => {
     setNewsletterData(prev => ({
       ...prev,
-      report_content: fixedContent
+      reports: [...prev.reports, { title: '', author: '', content: '' }]
     }));
+  };
+
+  // 参加報告を削除
+  const removeReport = (index: number) => {
+    if (newsletterData.reports.length <= 1) return; // 少なくとも1つは必要
+
+    setNewsletterData(prev => {
+      const newReports = [...prev.reports];
+      newReports.splice(index, 1);
+      return { ...prev, reports: newReports };
+    });
+  };
+
+  // 参加報告を移動（上下）
+  const moveReport = (index: number, direction: 'up' | 'down') => {
+    if (
+      (direction === 'up' && index === 0) ||
+      (direction === 'down' && index === newsletterData.reports.length - 1)
+    ) {
+      return; // 境界チェック
+    }
+
+    setNewsletterData(prev => {
+      const newReports = [...prev.reports];
+      const newIndex = direction === 'up' ? index - 1 : index + 1;
+
+      // 要素の入れ替え
+      [newReports[index], newReports[newIndex]] = [newReports[newIndex], newReports[index]];
+
+      return { ...prev, reports: newReports };
+    });
   };
 
   // ニューズレター生成の共通関数
@@ -120,9 +168,46 @@ function App() {
       alert('テンプレートが読み込まれていません。設定タブからテンプレートを選択してください。');
       return;
     }
+
     let result = defaultTemplate;
-    // 各プレースホルダーを対応する値で置換（全ての出現を置換）
-    Object.entries(newsletterData).forEach(([key, value]) => {
+
+    // 目次部分の参加報告タイトルと筆者を生成
+    let reportTitlesForToc = '';
+    newsletterData.reports.forEach((report, index) => {
+      if (index > 0) reportTitlesForToc += '\n';
+      reportTitlesForToc += `　◆ ${report.title}\n　　${report.author}`;
+    });
+
+    // 報告集部分の内容を生成
+    let reportContents = '';
+    newsletterData.reports.forEach((report, index) => {
+      if (index > 0) reportContents += '\n\n';
+      reportContents += `＋----------------------------------------------------------------------＋\n`;
+      reportContents += `◆ ${report.title}\n`;
+      reportContents += `＋----------------------------------------------------------------------＋\n`;
+      reportContents += `${report.author}\n`;
+      reportContents += `${report.content}`;
+    });
+
+    // トップレベル項目を置換
+    const replacements: Record<string, string> = {
+      // 通常のフィールド
+      publication_year: newsletterData.publication_year,
+      no_month: newsletterData.no_month,
+      editor_name: newsletterData.editor_name,
+      shusai_kyosai_events: newsletterData.shusai_kyosai_events,
+      kyosan_events: newsletterData.kyosan_events,
+      journal_cfps: newsletterData.journal_cfps,
+      international_cfps: newsletterData.international_cfps,
+      international_conferences: newsletterData.international_conferences,
+
+      // 参加報告関連の特別フィールド
+      report_title_list: reportTitlesForToc,
+      report_contents: reportContents
+    };
+
+    // 各プレースホルダーを対応する値で置換
+    Object.entries(replacements).forEach(([key, value]) => {
       const placeholder = new RegExp(`\\$\\{${key}\\}`, 'g');
       result = result.replace(placeholder, value);
     });
@@ -140,7 +225,6 @@ function App() {
     };
     Object.entries(templateVars).forEach(([key, value]) => {
       const placeholder = new RegExp(`\\$\\{${key}\\}`, 'g');
-      console.log(value);
       result = result.replace(placeholder, value.trim());
     });
 
@@ -204,7 +288,11 @@ function App() {
             setActiveEditorSubTab={setActiveEditorSubTab}
             newsletterData={newsletterData}
             handleInputChange={handleInputChange}
+            handleReportChange={handleReportChange}
             handleTextRuleFix={handleTextRuleFix}
+            addReport={addReport}
+            removeReport={removeReport}
+            moveReport={moveReport}
             generateNewsletter={generateNewsletter}
           />
         );

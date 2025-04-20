@@ -366,9 +366,8 @@ header h1 {
 /* テキストルール */
 .text-rules {
   margin-top: 0;
-  margin-bottom: 1.5rem;
   background-color: var(--bg-tertiary);
-  padding: 1.5rem;
+  padding: 0.1rem;
   border-radius: 4px;
 }
 
@@ -675,4 +674,127 @@ header h1 {
 
 .settings-reset-btn:hover {
   background-color: #ec971f;
+}
+
+/* 参加報告関連のスタイル */
+.report-form-container {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+}
+
+.report-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #495057;
+}
+
+.report-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.move-btn, .remove-btn {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.move-btn {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.move-btn:hover:not(:disabled) {
+  background-color: #dee2e6;
+}
+
+.move-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.remove-btn {
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+.remove-btn:hover {
+  background-color: #f5c2c7;
+}
+
+.add-report-btn {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #d1e7dd;
+  color: #0f5132;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-report-btn:hover {
+  background-color: #badbcc;
+}
+
+/* ダークモード対応 */
+.dark-mode .report-form-container {
+  background-color: #2d3748;
+  border-color: #4a5568;
+}
+
+.dark-mode .report-header {
+  border-bottom-color: #4a5568;
+}
+
+.dark-mode .report-header h3 {
+  color: #e2e8f0;
+}
+
+.dark-mode .move-btn {
+  background-color: #4a5568;
+  color: #e2e8f0;
+}
+
+.dark-mode .move-btn:hover:not(:disabled) {
+  background-color: #718096;
+}
+
+.dark-mode .remove-btn {
+  background-color: #742a2a;
+  color: #fbd5d5;
+}
+
+.dark-mode .remove-btn:hover {
+  background-color: #9b2c2c;
+}
+
+.dark-mode .add-report-btn {
+  background-color: #276749;
+  color: #c6f6d5;
+}
+
+.dark-mode .add-report-btn:hover {
+  background-color: #2f855a;
 }

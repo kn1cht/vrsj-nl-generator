@@ -1,16 +1,20 @@
 import React from 'react';
 import TextRules from './TextRules';
 
-export type NewsletterData = {
+export interface ReportEntry {
+  title: string;
+  author: string;
+  content: string;
+}
+
+export interface NewsletterData {
   // メイン
   publication_year: string;
   no_month: string;
   editor_name: string;
 
   // 参加報告
-  report_title: string;
-  report_author_name: string;
-  report_content: string;
+  reports: ReportEntry[];
 
   // 行事
   shusai_kyosai_events: string;
@@ -29,8 +33,12 @@ interface EditorTabsProps {
   setActiveEditorSubTab: (tab: EditorSubTab) => void;
   newsletterData: NewsletterData;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  handleTextRuleFix: (fixedContent: string) => void;
-  generateNewsletter: (formatForText: boolean) => void;
+  handleReportChange: (index: number, field: keyof ReportEntry, value: string) => void;
+  handleTextRuleFix: (fixedContent: string, index: number) => void;
+  addReport: () => void;
+  removeReport: (index: number) => void;
+  moveReport: (index: number, direction: 'up' | 'down') => void;
+  generateNewsletter: (formatForText?: boolean) => void;
 }
 
 const EditorTabs: React.FC<EditorTabsProps> = ({
@@ -38,7 +46,11 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
   setActiveEditorSubTab,
   newsletterData,
   handleInputChange,
+  handleReportChange,
   handleTextRuleFix,
+  addReport,
+  removeReport,
+  moveReport,
   generateNewsletter
 }) => {
   // エディタサブタブのレンダリング
@@ -91,50 +103,87 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
       case 'report':
         return (
           <section className="input-section">
-            <h3>参加報告</h3>
-            <div className="form-group">
-              <label htmlFor="report_title">タイトル</label>
-              <input
-                type="text"
-                id="report_title"
-                name="report_title"
-                value={newsletterData.report_title}
-                onChange={handleInputChange}
-                placeholder="ニューズレターのタイトル"
-              />
-            </div>
+          {newsletterData.reports.map((report, index) => (
+            <div key={index} className="report-form-container">
+              <div className="report-header">
+                <h3>参加報告 #{index + 1}</h3>
+                <div className="report-actions">
+                  {newsletterData.reports.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => moveReport(index, 'up')}
+                        disabled={index === 0}
+                        className="move-btn"
+                        aria-label="上に移動"
+                      >
+                      ↑
+                      </button>
+                      <button
+                        onClick={() => moveReport(index, 'down')}
+                        disabled={index === newsletterData.reports.length - 1}
+                        className="move-btn"
+                        aria-label="下に移動"
+                      >
+                      ↓
+                      </button>
+                      <button
+                        onClick={() => removeReport(index)}
+                          className="remove-btn"
+                          aria-label="削除"
+                        >
+                        ×
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="form-group">
+                <label htmlFor={`report-title-${index}`}>タイトル</label>
+                <input
+                  type="text"
+                  id={`report-title-${index}`}
+                  value={report.title}
+                  onChange={(e) => handleReportChange(index, 'title', e.target.value)}
+                  placeholder="参加報告のタイトル"
+                />
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="report_author_name">筆者</label>
-              <input
-                type="text"
-                id="report_author_name"
-                name="report_author_name"
-                value={newsletterData.report_author_name}
-                onChange={handleInputChange}
-                placeholder="所属・氏名"
-              />
-            </div>
+              <div className="form-group">
+                <label htmlFor={`report-author-${index}`}>筆者</label>
+                <input
+                  type="text"
+                  id={`report-author-${index}`}
+                  value={report.author}
+                  onChange={(e) => handleReportChange(index, 'author', e.target.value)}
+                  placeholder="所属・氏名"
+                />
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="report_content">本文</label>
-              <textarea
-                id="report_content"
-                name="report_content"
-                value={newsletterData.report_content}
-                onChange={handleInputChange}
-                placeholder="ニューズレターの本文をここに入力してください"
-                rows={10}
-              />
-            </div>
+              <div className="form-group">
+                <label htmlFor={`report-content-${index}`}>本文</label>
+                <textarea
+                  id={`report-content-${index}`}
+                  value={report.content}
+                  onChange={(e) => handleReportChange(index, 'content', e.target.value)}
+                  placeholder="参加報告の本文をここに入力してください"
+                  rows={10}
+                />
+              </div>
 
-            <div className="rules-section-inline">
-              <h3>テキスト校正</h3>
-              <TextRules
-                text={newsletterData.report_content}
-                onApplyFix={handleTextRuleFix}
-              />
+              <div className="rules-section-inline">
+                <h3>テキスト校正</h3>
+                <TextRules
+                  text={newsletterData.reports[index].content}
+                  index={index}
+                  onApplyFix={handleTextRuleFix}
+                />
+              </div>
+
+              <button onClick={addReport} className="add-report-btn">
+                + 参加報告を追加
+              </button>
             </div>
+          ))}
           </section>
         );
       case 'events':

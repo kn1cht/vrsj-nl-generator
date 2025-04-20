@@ -81,10 +81,11 @@ const TEXT_RULES: TextRule[] = [
 
 type TextRulesProps = {
   text: string;
-  onApplyFix: (fixedText: string) => void;
+  index: number;
+  onApplyFix: (fixedText: string, index: number) => void;
 };
 
-const TextRules = ({ text, onApplyFix }: TextRulesProps) => {
+const TextRules = ({ text, index, onApplyFix }: TextRulesProps) => {
   const [issues, setIssues] = useState<{ rule: TextRule; count: number }[]>([]);
 
   useEffect(() => {
@@ -97,7 +98,7 @@ const TextRules = ({ text, onApplyFix }: TextRulesProps) => {
     setIssues(foundIssues);
   }, [text]);
 
-  const handleApplyFix = (rule: TextRule) => {
+  const handleApplyFix = (rule: TextRule, index: number) => {
     if (rule.replace) {
       let fixedText: string;
       if (typeof rule.replace === 'string') {
@@ -109,7 +110,7 @@ const TextRules = ({ text, onApplyFix }: TextRulesProps) => {
           return result === null ? args[0] : result;
         });
       }
-      onApplyFix(fixedText);
+      onApplyFix(fixedText, index);
     }
   };
 
@@ -119,7 +120,6 @@ const TextRules = ({ text, onApplyFix }: TextRulesProps) => {
 
   return (
     <div className="text-rules">
-      <h3>テキストの問題</h3>
       <ul className="rules-list">
         {issues.map(({ rule, count }) => (
           <li key={rule.id} className="rule-item">
@@ -129,7 +129,7 @@ const TextRules = ({ text, onApplyFix }: TextRulesProps) => {
               <p className="rule-description">{rule.description}</p>
             </div>
             {rule.replace && (
-              <button className="fix-button" onClick={() => handleApplyFix(rule)}>
+              <button className="fix-button" onClick={() => handleApplyFix(rule, index)}>
                 適用
               </button>
             )}
