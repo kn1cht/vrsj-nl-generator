@@ -1,9 +1,11 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import TextFormatter, { DEFAULT_FORMAT_SETTINGS, FormatSettings, formatTextForMail } from './components/TextFormatter'
-import TemplateManager from './components/TemplateManager'
+import TemplateSettings from './components/TemplateSettings'
 import EditorTabs, { NewsletterData, EditorSubTab } from './components/EditorTabs'
 import defaultTemplate from './assets/templates/newsletter.txt?raw'
+import chairDefaultContent from './assets/templates/chair.txt?raw'
+import committeeDefaultContent from './assets/templates/committee.txt?raw'
 
 type Tab = 'editor' | 'settings' | 'data';
 
@@ -41,12 +43,8 @@ function App() {
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [formatSettings, setFormatSettings] = useState<FormatSettings>(DEFAULT_FORMAT_SETTINGS);
   const [isCopied, setIsCopied] = useState<boolean>(false);
-  const [newsletterTemplate, setNewsletterTemplate] = useState<string>(defaultTemplate);
-
-  // テンプレート変更のハンドラー（useCallbackでメモ化）
-  const handleTemplateChange = useCallback((template: string) => {
-    setNewsletterTemplate(template);
-  }, []);
+  const [chairContent, setChairContent] = useState(chairDefaultContent);
+  const [committeeContent, setCommitteeContent] = useState(committeeDefaultContent);
 
   // ダークモードの設定を読み込む
   useEffect(() => {
@@ -117,23 +115,17 @@ function App() {
 
   // ニューズレター生成の共通関数
   const generateNewsletter = (formatForText = false) => {
-    // テンプレートが読み込まれていない場合は処理しない
-    if (!newsletterTemplate) {
+    if (!defaultTemplate) {
       console.error('テンプレートが読み込まれていません');
       alert('テンプレートが読み込まれていません。設定タブからテンプレートを選択してください。');
       return;
     }
-
-    // テンプレートを解析して各要素を挿入
-    let result = newsletterTemplate;
-
+    let result = defaultTemplate;
     // 各プレースホルダーを対応する値で置換（全ての出現を置換）
     Object.entries(newsletterData).forEach(([key, value]) => {
-      // ${key} 形式のプレースホルダーを置換
       const placeholder = new RegExp(`\\$\\{${key}\\}`, 'g');
       result = result.replace(placeholder, value);
     });
-
     // Vol値を計算して置換（publication_year - 1995）
     const publicationYear = parseInt(newsletterData.publication_year);
     if (!isNaN(publicationYear)) {
@@ -141,6 +133,16 @@ function App() {
       const volPlaceholder = new RegExp('\\$\\{vol\\}', 'g');
       result = result.replace(volPlaceholder, vol.toString());
     }
+    // テンプレート変数の設定
+    const templateVars = {
+      chair: chairContent,
+      committee: committeeContent
+    };
+    Object.entries(templateVars).forEach(([key, value]) => {
+      const placeholder = new RegExp(`\\$\\{${key}\\}`, 'g');
+      console.log(value);
+      result = result.replace(placeholder, value.trim());
+    });
 
     // テキストメール用の場合は行幅整形処理を適用
     if (formatForText) {
@@ -208,8 +210,13 @@ function App() {
         );
       case 'settings':
         return (
-          <div className="settings-content">
-            <TemplateManager onTemplateChange={handleTemplateChange} />
+          <div className="settings-container">
+            <TemplateSettings
+              chairContent={chairContent}
+              committeeContent={committeeContent}
+              onChairChange={setChairContent}
+              onCommitteeChange={setCommitteeContent}
+            />
             <TextFormatter
               settings={formatSettings}
               onSettingsChange={setFormatSettings}

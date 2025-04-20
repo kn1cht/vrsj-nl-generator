@@ -480,14 +480,14 @@ header h1 {
 }
 
 /* テキスト整形設定 */
-.text-formatter {
+.settings-panel {
   background-color: var(--bg-secondary);
   padding: 1.5rem;
   border-radius: 8px;
   margin-top: 1rem;
 }
 
-.text-formatter h3 {
+.settings-panel h3 {
   color: var(--text-secondary);
   margin-bottom: 1rem;
   font-size: 1.25rem;
@@ -660,4 +660,19 @@ header h1 {
   border-radius: 8px;
   box-shadow: 0 4px 6px var(--shadow-color);
   margin-top: 1rem;
+}
+
+
+.settings-reset-btn {
+  margin-top: 1rem;
+  background-color: #f0ad4e;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.settings-reset-btn:hover {
+  background-color: #ec971f;
 }

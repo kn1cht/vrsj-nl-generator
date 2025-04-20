@@ -195,7 +195,7 @@ const TextFormatter: React.FC<TextFormatterProps> = ({ settings, onSettingsChang
   };
 
   return (
-    <div className="text-formatter">
+    <div className="settings-panel">
       <h3>テキスト整形設定</h3>
       <div className="formatter-settings">
         <div className="form-group">
