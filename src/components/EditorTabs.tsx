@@ -1,28 +1,6 @@
 import React from 'react';
 import TextRules from './TextRules';
-
-export interface ReportEntry {
-  title: string;
-  author: string;
-  content: string;
-}
-
-export interface NewsletterData {
-  // メイン
-  publication_year: string;
-  no_month: string;
-  editor_name: string;
-  // 参加報告
-  reports: ReportEntry[];
-  // 行事
-  shusai_kyosai_events: string;
-  kyosan_events: string;
-  awards: string;
-  journal_cfps: string;
-  // 関連情報
-  international_cfps: string;
-  international_conferences: string;
-}
+import { NewsletterData, ReportEntry } from '../types/NewsletterData';
 
 export type EditorSubTab = 'main' | 'report' | 'events' | 'info';
 

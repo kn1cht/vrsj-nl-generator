@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import TextFormatter, { DEFAULT_FORMAT_SETTINGS, FormatSettings, formatTextForMail } from './components/TextFormatter'
 import TemplateSettings from './components/TemplateSettings'
-import EditorTabs, { NewsletterData, EditorSubTab, ReportEntry } from './components/EditorTabs'
+import EditorTabs, { EditorSubTab } from './components/EditorTabs'
+import { NewsletterData, ReportEntry, createInitialNewsletterData } from './types/NewsletterData'
 import defaultTemplate from './assets/templates/newsletter.txt?raw'
 import chairDefaultContent from './assets/templates/chair.txt?raw'
 import committeeDefaultContent from './assets/templates/committee.txt?raw'
 import awardTocTemplate from './assets/templates/award_toc.txt?raw'
 import awardTemplate from './assets/templates/award.txt?raw'
+import { TemplateService } from './services/TemplateService'
 
 type Tab = 'editor' | 'settings' | 'data';
 
@@ -15,27 +17,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<Tab>('editor');
   const [activeEditorSubTab, setActiveEditorSubTab] = useState<EditorSubTab>('main');
 
-  // 現在の年月を取得して初期値として設定
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear().toString();
-  const currentMonth = (currentDate.getMonth() + 1).toString();
-
-  const [newsletterData, setNewsletterData] = useState<NewsletterData>({
-    // メイン - 現在の年月を初期値として設定
-    publication_year: currentYear,
-    no_month: currentMonth,
-    editor_name: '',
-    // 参加報告
-    reports: [{ title: '', author: '', content: '' }],
-    // 行事
-    shusai_kyosai_events: '',
-    kyosan_events: '',
-    awards: '',
-    journal_cfps: '',
-    // 関連情報
-    international_cfps: '',
-    international_conferences: ''
-  });
+  const [newsletterData, setNewsletterData] = useState<NewsletterData>(createInitialNewsletterData());
 
   const [generatedNewsletter, setGeneratedNewsletter] = useState<string>('');
   const [darkMode, setDarkMode] = useState<boolean>(false);
@@ -43,6 +25,14 @@ function App() {
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [chairContent, setChairContent] = useState(chairDefaultContent);
   const [committeeContent, setCommitteeContent] = useState(committeeDefaultContent);
+
+  // テンプレートサービスの初期化
+  const templateService = new TemplateService(
+    defaultTemplate,
+    awardTocTemplate,
+    awardTemplate,
+    { chair: chairContent, committee: committeeContent }
+  );
 
   // ダークモードの設定を読み込む
   useEffect(() => {
@@ -163,101 +153,22 @@ function App() {
 
   // ニューズレター生成の共通関数
   const generateNewsletter = (formatForText = false) => {
-    if (!defaultTemplate) {
-      console.error('テンプレートが読み込まれていません');
-      alert('テンプレートが読み込まれていません。設定タブからテンプレートを選択してください。');
-      return;
+    try {
+      let result;
+      if (formatForText) {
+        result = templateService.generateNewsletter(
+          newsletterData,
+          formatTextForMail,
+          formatSettings
+        );
+      } else {
+        result = templateService.generateNewsletter(newsletterData);
+      }
+      setGeneratedNewsletter(result);
+    } catch (error) {
+      console.error('ニューズレターの生成に失敗しました', error);
+      alert('ニューズレターの生成に失敗しました。テンプレートを確認してください。');
     }
-
-    let result = defaultTemplate;
-
-    // 目次部分の参加報告タイトルと筆者を生成
-    let reportTitlesForToc = '';
-    newsletterData.reports.forEach((report, index) => {
-      if (index > 0) reportTitlesForToc += '\n';
-      reportTitlesForToc += `　◆ ${report.title}\n　　${report.author}`;
-    });
-
-    // 報告集部分の内容を生成
-    let reportContents = '';
-    newsletterData.reports.forEach((report, index) => {
-      if (index > 0) reportContents += '\n\n';
-      reportContents += `＋----------------------------------------------------------------------＋\n`;
-      reportContents += `◆ ${report.title}\n`;
-      reportContents += `＋----------------------------------------------------------------------＋\n`;
-      reportContents += `${report.author}\n`;
-      reportContents += `${report.content}`;
-    });
-
-    // 賞に関するご案内の処理
-    let awardToc = '';
-    let awardContent = '';
-    if (newsletterData.awards && newsletterData.awards.trim() !== '') {
-      // 目次部分
-      awardToc = awardTocTemplate;
-
-      // 本文部分
-      awardContent = awardTemplate.replace('${content}', newsletterData.awards);
-    }
-    else {
-      // award_toc を含む行を削除
-      result = result.replace(/^.*\$\{award_toc\}.*$\n?/gm, '');
-      // award を含む行を削除（複数行に渡る場合もあるので全てを削除）
-      result = result.replace(/^.*\$\{award\}.*$[\s\S]*?\n(?=\S)/gm, '');
-    }
-
-    // トップレベル項目を置換
-    const replacements: Record<string, string> = {
-      // 通常のフィールド
-      publication_year: newsletterData.publication_year,
-      no_month: newsletterData.no_month,
-      editor_name: newsletterData.editor_name,
-      shusai_kyosai_events: newsletterData.shusai_kyosai_events,
-      kyosan_events: newsletterData.kyosan_events,
-      journal_cfps: newsletterData.journal_cfps,
-      international_cfps: newsletterData.international_cfps,
-      international_conferences: newsletterData.international_conferences,
-
-      // 参加報告関連の特別フィールド
-      report_title_list: reportTitlesForToc,
-      report_contents: reportContents,
-
-      // 賞に関するご案内
-      award_toc: awardToc,
-      award: awardContent
-    };
-
-    // 各プレースホルダーを対応する値で置換
-    Object.entries(replacements).forEach(([key, value]) => {
-      const placeholder = new RegExp(`\\$\\{${key}\\}`, 'g');
-      result = result.replace(placeholder, value.trim());
-    });
-
-    // Vol値を計算して置換（publication_year - 1995）
-    const publicationYear = parseInt(newsletterData.publication_year);
-    if (!isNaN(publicationYear)) {
-      const vol = publicationYear - 1995;
-      const volPlaceholder = new RegExp('\\$\\{vol\\}', 'g');
-      result = result.replace(volPlaceholder, vol.toString());
-    }
-    // テンプレート変数の設定
-    const templateVars = {
-      chair: chairContent,
-      committee: committeeContent
-    };
-    Object.entries(templateVars).forEach(([key, value]) => {
-      const placeholder = new RegExp(`\\$\\{${key}\\}`, 'g');
-      result = result.replace(placeholder, value.trim());
-    });
-
-    // テキストメール用の場合は行幅整形処理を適用
-    if (formatForText) {
-      result = formatTextForMail(result.trim(), formatSettings);
-    } else {
-      result = result.trim();
-    }
-
-    setGeneratedNewsletter(result);
   };
 
   const copyToClipboard = () => {
