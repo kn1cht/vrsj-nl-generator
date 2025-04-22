@@ -12,16 +12,14 @@ export interface NewsletterData {
   publication_year: string;
   no_month: string;
   editor_name: string;
-
   // 参加報告
   reports: ReportEntry[];
-
   // 行事
   shusai_kyosai_events: string;
   kyosan_events: string;
-
-  // 関連情報
+  awards: string;
   journal_cfps: string;
+  // 関連情報
   international_cfps: string;
   international_conferences: string;
 }
@@ -210,6 +208,18 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
                 value={newsletterData.kyosan_events}
                 onChange={handleInputChange}
                 placeholder="協賛行事の情報をここに入力してください"
+                rows={6}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="awards">賞に関するご案内</label>
+              <textarea
+                id="awards"
+                name="awards"
+                value={newsletterData.awards}
+                onChange={handleInputChange}
+                placeholder="賞に関するご案内の情報をここに入力してください"
                 rows={6}
               />
             </div>
