@@ -2,6 +2,12 @@ import React from 'react';
 import TextRules from './TextRules';
 import { NewsletterData, ReportEntry } from '../types/NewsletterData';
 
+import { fullWidthAlphanumericRule } from '../rules/fullWidthAlphanumericRule';
+import { paragraphSpacingRule } from '../rules/paragraphSpacingRule';
+import { paragraphIndentRule } from '../rules/paragraphIndentRule';
+import { punctuationRule } from '../rules/punctuationRule';
+import { urlFormatRule } from '../rules/urlFormatRule';
+
 export type EditorSubTab = 'main' | 'report' | 'events' | 'info';
 
 interface EditorTabsProps {
@@ -151,6 +157,13 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
                 <TextRules
                   text={newsletterData.reports[index].content}
                   index={index}
+                  rules={[
+                    fullWidthAlphanumericRule,
+                    paragraphSpacingRule,
+                    paragraphIndentRule,
+                    punctuationRule,
+                    urlFormatRule
+                  ]}
                   onApplyFix={handleTextRuleFix}
                 />
               </div>
