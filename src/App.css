@@ -366,7 +366,6 @@ header h1 {
 /* テキストルール */
 .text-rules {
   margin-top: 0;
-  background-color: var(--bg-tertiary);
   padding: 0.1rem;
   border-radius: 4px;
 }
@@ -636,9 +635,8 @@ header h1 {
 
 /* インライン校正セクション */
 .rules-section-inline {
-  margin-top: 2rem;
-  padding: 1rem;
-  background-color: var(--bg-tertiary);
+  margin-top: 0.25rem;
+  padding: 0.5rem;
   border-radius: 4px;
 }
 
@@ -677,7 +675,7 @@ header h1 {
 }
 
 /* 参加報告関連のスタイル */
-.report-form-container {
+.form-container {
   background-color: #f8f9fa;
   border: 1px solid #e9ecef;
   border-radius: 0.5rem;
@@ -759,7 +757,7 @@ header h1 {
 }
 
 /* ダークモード対応 */
-.dark-mode .report-form-container {
+.dark-mode .form-container {
   background-color: #2d3748;
   border-color: #4a5568;
 }

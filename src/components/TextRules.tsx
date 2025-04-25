@@ -3,12 +3,11 @@ import type { TextRule } from '../types/TextRule';
 
 type TextRulesProps = {
   text: string;
-  index: number;
   rules: TextRule[];
-  onApplyFix: (fixedText: string, index: number) => void;
+  onApplyFix: (fixedText: string) => void;
 };
 
-const TextRules = ({ text, index, rules, onApplyFix }: TextRulesProps) => {
+const TextRules = ({ text, rules, onApplyFix }: TextRulesProps) => {
   const [issues, setIssues] = useState<{ rule: TextRule; count: number }[]>([]);
 
   useEffect(() => {
@@ -21,7 +20,7 @@ const TextRules = ({ text, index, rules, onApplyFix }: TextRulesProps) => {
     setIssues(foundIssues);
   }, [text, rules]);
 
-  const handleApplyFix = (rule: TextRule, index: number) => {
+  const handleApplyFix = (rule: TextRule) => {
     if (rule.replace) {
       let fixedText: string;
       if (typeof rule.replace === 'string') {
@@ -33,7 +32,7 @@ const TextRules = ({ text, index, rules, onApplyFix }: TextRulesProps) => {
           return result === null ? args[0] : result;
         });
       }
-      onApplyFix(fixedText, index);
+      onApplyFix(fixedText);
     }
   };
 
@@ -52,7 +51,7 @@ const TextRules = ({ text, index, rules, onApplyFix }: TextRulesProps) => {
               <p className="rule-description">{rule.description}</p>
             </div>
             {rule.replace && (
-              <button className="fix-button" onClick={() => handleApplyFix(rule, index)}>
+              <button className="fix-button" onClick={() => handleApplyFix(rule)}>
                 適用
               </button>
             )}

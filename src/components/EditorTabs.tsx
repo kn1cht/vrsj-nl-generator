@@ -14,9 +14,9 @@ interface EditorTabsProps {
   activeEditorSubTab: EditorSubTab;
   setActiveEditorSubTab: (tab: EditorSubTab) => void;
   newsletterData: NewsletterData;
+  setNewsletterData: React.Dispatch<React.SetStateAction<NewsletterData>>;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleReportChange: (index: number, field: keyof ReportEntry, value: string) => void;
-  handleTextRuleFix: (fixedContent: string, index: number) => void;
   addReport: () => void;
   removeReport: (index: number) => void;
   moveReport: (index: number, direction: 'up' | 'down') => void;
@@ -27,9 +27,9 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
   activeEditorSubTab,
   setActiveEditorSubTab,
   newsletterData,
+  setNewsletterData,
   handleInputChange,
   handleReportChange,
-  handleTextRuleFix,
   addReport,
   removeReport,
   moveReport,
@@ -41,7 +41,7 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
       case 'main':
         return (
           <section className="input-section">
-            <h3>基本情報</h3>
+            <h3>基本情報</h3><br />
             <div className="form-group">
               <label htmlFor="publication_year">年</label>
               <input
@@ -86,7 +86,7 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
         return (
           <section className="input-section">
           {newsletterData.reports.map((report, index) => (
-            <div key={index} className="report-form-container">
+            <div key={index} className="form-container">
               <div className="report-header">
                 <h3>参加報告 #{index + 1}</h3>
                 <div className="report-actions">
@@ -153,10 +153,8 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
               </div>
 
               <div className="rules-section-inline">
-                <h3>テキスト校正</h3>
                 <TextRules
-                  text={newsletterData.reports[index].content}
-                  index={index}
+                  text={newsletterData.reports[index]?.content ?? ''}
                   rules={[
                     fullWidthAlphanumericRule,
                     paragraphSpacingRule,
@@ -164,7 +162,16 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
                     punctuationRule,
                     urlFormatRule
                   ]}
-                  onApplyFix={handleTextRuleFix}
+                  onApplyFix={(fixedContent: string) => {
+                      setNewsletterData(prev => {
+                        const newReports = [...prev.reports];
+                        if (newReports[index]) {
+                          newReports[index] = { ...newReports[index], content: fixedContent };
+                        }
+                        return { ...prev, reports: newReports };
+                      });
+                    }
+                  }
                 />
               </div>
 
@@ -178,8 +185,8 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
       case 'events':
         return (
           <section className="input-section">
-            <h3>行事情報</h3>
-            <div className="form-group">
+            <h3>行事情報</h3><br />
+            <div className="form-group form-container">
               <label htmlFor="shusai_kyosai_events">主催・共催行事</label>
               <textarea
                 id="shusai_kyosai_events"
@@ -189,9 +196,18 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
                 placeholder="主催・共催行事の情報をここに入力してください"
                 rows={6}
               />
+              <div className="rules-section-inline">
+                <TextRules
+                  text={newsletterData.shusai_kyosai_events}
+                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule]}
+                  onApplyFix={(fixedContent: string) => {
+                    setNewsletterData(prev => ({...prev, shusai_kyosai_events: fixedContent}));
+                  }}
+                />
+              </div>
             </div>
 
-            <div className="form-group">
+            <div className="form-group form-container">
               <label htmlFor="kyosan_events">協賛行事</label>
               <textarea
                 id="kyosan_events"
@@ -201,9 +217,18 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
                 placeholder="協賛行事の情報をここに入力してください"
                 rows={6}
               />
+              <div className="rules-section-inline">
+                <TextRules
+                  text={newsletterData.shusai_kyosai_events}
+                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule]}
+                  onApplyFix={(fixedContent: string) => {
+                    setNewsletterData(prev => ({...prev, shusai_kyosai_events: fixedContent}));
+                  }}
+                />
+              </div>
             </div>
 
-            <div className="form-group">
+            <div className="form-group form-container">
               <label htmlFor="awards">賞に関するご案内</label>
               <textarea
                 id="awards"
@@ -213,14 +238,23 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
                 placeholder="賞に関するご案内の情報をここに入力してください"
                 rows={6}
               />
+              <div className="rules-section-inline">
+                <TextRules
+                  text={newsletterData.shusai_kyosai_events}
+                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule]}
+                  onApplyFix={(fixedContent: string) => {
+                    setNewsletterData(prev => ({...prev, shusai_kyosai_events: fixedContent}));
+                  }}
+                />
+              </div>
             </div>
           </section>
         );
       case 'info':
         return (
           <section className="input-section">
-            <h3>関連情報</h3>
-            <div className="form-group">
+            <h3>関連情報</h3><br />
+            <div className="form-group form-container">
               <label htmlFor="journal_cfps">論文誌特集号</label>
               <textarea
                 id="journal_cfps"
@@ -230,9 +264,18 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
                 placeholder="論文誌の特集号情報をここに入力してください"
                 rows={5}
               />
+              <div className="rules-section-inline">
+                <TextRules
+                  text={newsletterData.shusai_kyosai_events}
+                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule]}
+                  onApplyFix={(fixedContent: string) => {
+                    setNewsletterData(prev => ({...prev, shusai_kyosai_events: fixedContent}));
+                  }}
+                />
+              </div>
             </div>
 
-            <div className="form-group">
+            <div className="form-group form-container">
               <label htmlFor="international_cfps">国際会議論文募集</label>
               <textarea
                 id="international_cfps"
@@ -242,9 +285,18 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
                 placeholder="国際会議の論文募集情報をここに入力してください"
                 rows={5}
               />
+              <div className="rules-section-inline">
+                <TextRules
+                  text={newsletterData.shusai_kyosai_events}
+                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule]}
+                  onApplyFix={(fixedContent: string) => {
+                    setNewsletterData(prev => ({...prev, shusai_kyosai_events: fixedContent}));
+                  }}
+                />
+              </div>
             </div>
 
-            <div className="form-group">
+            <div className="form-group form-container">
               <label htmlFor="international_conferences">国際会議参加募集</label>
               <textarea
                 id="international_conferences"
@@ -254,6 +306,15 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
                 placeholder="国際会議の参加募集情報をここに入力してください"
                 rows={5}
               />
+              <div className="rules-section-inline">
+                <TextRules
+                  text={newsletterData.shusai_kyosai_events}
+                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule]}
+                  onApplyFix={(fixedContent: string) => {
+                    setNewsletterData(prev => ({...prev, shusai_kyosai_events: fixedContent}));
+                  }}
+                />
+              </div>
             </div>
           </section>
         );

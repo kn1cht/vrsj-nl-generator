@@ -103,15 +103,6 @@ function App() {
     });
   };
 
-  // 参加報告テキスト校正ハンドラー
-  const handleTextRuleFix = (fixedContent: string, index: number) => {
-    setNewsletterData(prev => {
-      const newReports = [...prev.reports];
-      newReports[index] = { ...newReports[index], content: fixedContent };
-      return { ...prev, reports: newReports };
-    });
-  };
-
   // 参加報告を追加
   const addReport = () => {
     setNewsletterData(prev => ({
@@ -220,9 +211,9 @@ function App() {
             activeEditorSubTab={activeEditorSubTab}
             setActiveEditorSubTab={setActiveEditorSubTab}
             newsletterData={newsletterData}
+            setNewsletterData={setNewsletterData}
             handleInputChange={handleInputChange}
             handleReportChange={handleReportChange}
-            handleTextRuleFix={handleTextRuleFix}
             addReport={addReport}
             removeReport={removeReport}
             moveReport={moveReport}
