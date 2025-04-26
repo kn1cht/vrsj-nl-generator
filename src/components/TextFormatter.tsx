@@ -2,10 +2,10 @@ import { useState } from 'react';
 
 // デフォルトの禁則文字設定
 export const DEFAULT_FORMAT_SETTINGS = {
-  maxCharsPerLine: 74, // 半角文字数
+  maxCharsPerLine: 75, // 半角文字数
   dropChars: ';・.､｡、。，．｣」』）〕］｝〉】', // ぶら下げ文字
-  lineStartForbidChars: ']}):;?!ﾞﾟ･~：；？！゛゜‐\'"）〕］｝〉」』】', // 行頭禁則文字
-  lineEndForbidChars: '[{(\'"（〔［｛〈「『【「' // 行末禁則文字
+  lineStartForbidChars: ']}):;?!ﾞﾟ”･~：；？！゛゜‐\'"）〕］｝〉」』】', // 行頭禁則文字
+  lineEndForbidChars: '[{(\'"“（〔［｛〈「『【「' // 行末禁則文字
 };
 
 export type FormatSettings = typeof DEFAULT_FORMAT_SETTINGS;
@@ -62,9 +62,20 @@ export const formatTextForMail = (text: string, settings: FormatSettings = DEFAU
 
         // 単語または数値が行をはみ出す場合で、かつ現在の行が空でない場合
         if (currentWidth + wordWidth > effectiveMaxChars && currentWidth > 0) {
-          lines.push(currentLine);
-          currentLine = '';
-          currentWidth = 0;
+          // 直前の行の最後の文字を取得
+          const lastCharOfCurrentLine = currentLine.slice(-1);
+          // 行末禁則文字かどうかをチェック
+          if (lineEndForbidChars.includes(lastCharOfCurrentLine)) {
+            // 禁則文字を行頭に送る
+            const lineWithoutLastChar = currentLine.slice(0, -1);
+            lines.push(lineWithoutLastChar);
+            currentLine = lastCharOfCurrentLine;
+            currentWidth = isFullWidth(lastCharOfCurrentLine) ? 2 : 1;
+          } else {
+            lines.push(currentLine);
+            currentLine = '';
+            currentWidth = 0;
+          }
         }
 
         // 単語を追加
@@ -93,7 +104,7 @@ export const formatTextForMail = (text: string, settings: FormatSettings = DEFAU
         }
 
         // 行末禁則文字の処理
-        if (lineEndForbidChars.includes(char) && currentWidth + charWidth > effectiveMaxChars) {
+        if (lineEndForbidChars.includes(char) && currentWidth + charWidth >= effectiveMaxChars) {
           lines.push(currentLine);
           currentLine = char;
           currentWidth = charWidth;
