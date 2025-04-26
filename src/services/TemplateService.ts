@@ -87,7 +87,7 @@ export class TemplateService {
     reports.forEach((report, index) => {
       if (index > 0) reportContents += '\n\n';
       reportContents += `＋----------------------------------------------------------------------＋\n`;
-      reportContents += `◆ ${report.title}\n`;
+      reportContents += `｜◆ ${report.title}\n`;
       reportContents += `＋----------------------------------------------------------------------＋\n`;
       reportContents += `${report.author}\n`;
       reportContents += `${report.content}`;
