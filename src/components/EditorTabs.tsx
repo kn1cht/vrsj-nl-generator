@@ -7,6 +7,8 @@ import { paragraphSpacingRule } from '../rules/paragraphSpacingRule';
 import { paragraphIndentRule } from '../rules/paragraphIndentRule';
 import { punctuationRule } from '../rules/punctuationRule';
 import { urlFormatRule } from '../rules/urlFormatRule';
+import { parenthesesPairRule } from '../rules/parenthesesPairRule';
+import { japaneseParenthesesRule } from '../rules/japaneseParenthesesRule';
 
 export type EditorSubTab = 'main' | 'report' | 'events' | 'info';
 
@@ -160,7 +162,9 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
                     paragraphSpacingRule,
                     paragraphIndentRule,
                     punctuationRule,
-                    urlFormatRule
+                    urlFormatRule,
+                    parenthesesPairRule,
+                    japaneseParenthesesRule
                   ]}
                   onApplyFix={(fixedContent: string) => {
                       setNewsletterData(prev => {
@@ -199,7 +203,7 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
               <div className="rules-section-inline">
                 <TextRules
                   text={newsletterData.shusai_kyosai_events}
-                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule]}
+                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule, parenthesesPairRule, japaneseParenthesesRule]}
                   onApplyFix={(fixedContent: string) => {
                     setNewsletterData(prev => ({...prev, shusai_kyosai_events: fixedContent}));
                   }}
@@ -219,10 +223,10 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
               />
               <div className="rules-section-inline">
                 <TextRules
-                  text={newsletterData.shusai_kyosai_events}
-                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule]}
+                  text={newsletterData.kyosan_events}
+                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule, parenthesesPairRule, japaneseParenthesesRule]}
                   onApplyFix={(fixedContent: string) => {
-                    setNewsletterData(prev => ({...prev, shusai_kyosai_events: fixedContent}));
+                    setNewsletterData(prev => ({...prev, kyosan_events: fixedContent}));
                   }}
                 />
               </div>
@@ -240,10 +244,10 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
               />
               <div className="rules-section-inline">
                 <TextRules
-                  text={newsletterData.shusai_kyosai_events}
-                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule]}
+                  text={newsletterData.awards}
+                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule, parenthesesPairRule, japaneseParenthesesRule]}
                   onApplyFix={(fixedContent: string) => {
-                    setNewsletterData(prev => ({...prev, shusai_kyosai_events: fixedContent}));
+                    setNewsletterData(prev => ({...prev, awards: fixedContent}));
                   }}
                 />
               </div>
@@ -266,10 +270,10 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
               />
               <div className="rules-section-inline">
                 <TextRules
-                  text={newsletterData.shusai_kyosai_events}
-                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule]}
+                  text={newsletterData.journal_cfps}
+                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule, parenthesesPairRule, japaneseParenthesesRule]}
                   onApplyFix={(fixedContent: string) => {
-                    setNewsletterData(prev => ({...prev, shusai_kyosai_events: fixedContent}));
+                    setNewsletterData(prev => ({...prev, journal_cfps: fixedContent}));
                   }}
                 />
               </div>
@@ -287,10 +291,10 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
               />
               <div className="rules-section-inline">
                 <TextRules
-                  text={newsletterData.shusai_kyosai_events}
-                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule]}
+                  text={newsletterData.international_cfps}
+                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule, parenthesesPairRule, japaneseParenthesesRule]}
                   onApplyFix={(fixedContent: string) => {
-                    setNewsletterData(prev => ({...prev, shusai_kyosai_events: fixedContent}));
+                    setNewsletterData(prev => ({...prev, international_cfps: fixedContent}));
                   }}
                 />
               </div>
@@ -308,10 +312,10 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
               />
               <div className="rules-section-inline">
                 <TextRules
-                  text={newsletterData.shusai_kyosai_events}
-                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule]}
+                  text={newsletterData.international_conferences}
+                  rules={[fullWidthAlphanumericRule, punctuationRule, urlFormatRule, parenthesesPairRule, japaneseParenthesesRule]}
                   onApplyFix={(fixedContent: string) => {
-                    setNewsletterData(prev => ({...prev, shusai_kyosai_events: fixedContent}));
+                    setNewsletterData(prev => ({...prev, international_conferences: fixedContent}));
                   }}
                 />
               </div>
