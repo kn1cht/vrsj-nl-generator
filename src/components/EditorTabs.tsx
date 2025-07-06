@@ -1,6 +1,7 @@
 import React from 'react';
 import TextRules from './TextRules';
 import { NewsletterData, ReportEntry } from '../types/NewsletterData';
+import holiday_jp from '@holiday-jp/holiday_jp';
 
 import { fullWidthAlphanumericRule } from '../rules/fullWidthAlphanumericRule';
 import { paragraphSpacingRule } from '../rules/paragraphSpacingRule';
@@ -37,6 +38,31 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
   moveReport,
   generateNewsletter
 }) => {
+  // 発行日が土日祝日かどうかを判定する
+  const checkPublicationDate = () => {
+    const year = parseInt(newsletterData.publication_year, 10);
+    const month = parseInt(newsletterData.no_month, 10);
+    const day = parseInt(newsletterData.publication_date, 10);
+    if (!year || !month || !day) return null;
+    const date = new Date(year, month - 1, day);
+    const dayOfWeek = date.getDay(); // 0:日曜, 6:土曜
+    const isHoliday = holiday_jp.isHoliday(date);
+    let warning = null;
+    if (isHoliday) {
+      warning = (<strong>祝日</strong>);
+    } else if (dayOfWeek === 0 || dayOfWeek === 6) {
+      warning = (<strong>{dayOfWeek === 0 ? '日曜日' : '土曜日'}</strong>);
+    }
+    if (warning) {
+      return (
+      <div className="warning-message">
+        <strong>警告:</strong> 発行日（{month}/{day}）は{warning}です。日付の調整が必要です。
+      </div>
+      );
+    }
+    return null;
+  };
+
   // エディタサブタブのレンダリング
   const renderEditorSubTab = () => {
     switch (activeEditorSubTab) {
@@ -69,6 +95,19 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
                 onChange={handleInputChange}
                 placeholder="月"
               />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="publication_date">発行日</label>
+              <input
+                type="text"
+                id="publication_date"
+                name="publication_date"
+                value={newsletterData.publication_date}
+                onChange={handleInputChange}
+                placeholder="日"
+              />
+              {checkPublicationDate()}
             </div>
 
             <div className="form-group">

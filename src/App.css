@@ -796,3 +796,19 @@ header h1 {
 .dark-mode .add-report-btn:hover {
   background-color: #2f855a;
 }
+
+.warning-message {
+  background-color: #fff3cd;
+  color: #664d03;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ffecb5;
+  border-radius: 4px;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.dark-mode .warning-message {
+  background-color: #664d03;
+  color: #fff3cd;
+  border-color: #856404;
+}

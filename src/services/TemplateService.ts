@@ -122,6 +122,7 @@ export class TemplateService {
       // 通常のフィールド
       publication_year: newsletterData.publication_year,
       no_month: newsletterData.no_month,
+      publication_date: newsletterData.publication_date,
       editor_name: newsletterData.editor_name,
       shusai_kyosai_events: newsletterData.shusai_kyosai_events,
       kyosan_events: newsletterData.kyosan_events,

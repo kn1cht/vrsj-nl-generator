@@ -14,6 +14,7 @@ export interface NewsletterData {
   // メイン
   publication_year: string;
   no_month: string;
+  publication_date: string;
   editor_name: string;
   // 参加報告
   reports: ReportEntry[];
@@ -46,6 +47,7 @@ export function createInitialNewsletterData(
     // メイン
     publication_year: currentYear,
     no_month: currentMonth,
+    publication_date: '25',
     editor_name: '',
     // 参加報告
     reports: [{ title: '', author: '', content: '' }],
