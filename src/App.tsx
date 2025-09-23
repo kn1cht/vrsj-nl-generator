@@ -9,6 +9,8 @@ import chairDefaultContent from './assets/templates/chair.txt?raw'
 import committeeDefaultContent from './assets/templates/committee.txt?raw'
 import awardTocTemplate from './assets/templates/award_toc.txt?raw'
 import awardTemplate from './assets/templates/award.txt?raw'
+import shusaiKyosaiEventsTocTemplate from './assets/templates/shusai_kyosai_events_toc.txt?raw'
+import shusaiKyosaiEventsTemplate from './assets/templates/shusai_kyosai_events.txt?raw'
 import { TemplateService } from './services/TemplateService'
 
 type Tab = 'editor' | 'settings' | 'data';
@@ -31,6 +33,8 @@ function App() {
     defaultTemplate,
     awardTocTemplate,
     awardTemplate,
+    shusaiKyosaiEventsTocTemplate,
+    shusaiKyosaiEventsTemplate,
     { chair: chairContent, committee: committeeContent }
   );
 

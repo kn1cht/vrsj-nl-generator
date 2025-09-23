@@ -11,6 +11,8 @@ export class TemplateService {
     private defaultTemplate: string,
     private awardTocTemplate: string,
     private awardTemplate: string,
+    private shusaiKyosaiEventsTocTemplate: string,
+    private shusaiKyosaiEventsTemplate: string,
     private templateVars: TemplateVariables
   ) {}
 
@@ -27,6 +29,11 @@ export class TemplateService {
     }
 
     let result = this.defaultTemplate;
+
+    if(!newsletterData.shusai_kyosai_events || newsletterData.shusai_kyosai_events.trim() === '') {
+      // 主催共催情報が空の場合、対応する行を削除
+      result = this.removeEmptyShusaiKyosaiLines(result);
+    }
 
     // 賞に関するご案内の処理
     if (!newsletterData.awards || newsletterData.awards.trim() === '') {
@@ -57,12 +64,19 @@ export class TemplateService {
   }
 
   /**
+   * 空の主催共催情報を含む行を削除する
+   */
+  private removeEmptyShusaiKyosaiLines(template: string): string {
+    let result = template.replace(/^.*\$\{shusai_kyosai_events_toc\}.*$\n?/gm, '');
+    result = result.replace(/^.*\$\{shusai_kyosai_events\}.*$[\s\S]*?\n(?=\S)/gm, '');
+    return result;
+  }
+
+  /**
    * 空の賞情報を含む行を削除する
    */
   private removeEmptyAwardLines(template: string): string {
-    // award_toc を含む行を削除
     let result = template.replace(/^.*\$\{award_toc\}.*$\n?/gm, '');
-    // award を含む行を削除（複数行に渡る場合もあるので全てを削除）
     result = result.replace(/^.*\$\{award\}.*$[\s\S]*?\n(?=\S)/gm, '');
     return result;
   }
@@ -96,6 +110,21 @@ export class TemplateService {
   }
 
   /**
+   * 主催共催イベントの処理
+   */
+  private processShusaiKyosaiEvents(events: string): { shusaiKyosaiToc: string, shusaiKyosaiContent: string } {
+    let shusaiKyosaiToc = '';
+    let shusaiKyosaiContent = '';
+    if (events && events.trim() !== '') {
+      // 目次部分
+      shusaiKyosaiToc = this.shusaiKyosaiEventsTocTemplate;
+      // 本文部分
+      shusaiKyosaiContent = this.shusaiKyosaiEventsTemplate.replace('${content}', events);
+    }
+    return { shusaiKyosaiToc, shusaiKyosaiContent };
+  }
+
+  /**
    * 賞に関するご案内の処理
    */
   private processAward(awards: string): { awardToc: string, awardContent: string } {
@@ -116,6 +145,7 @@ export class TemplateService {
   private createReplacements(newsletterData: NewsletterData): Record<string, string> {
     const reportTitlesForToc = this.generateReportTitlesForToc(newsletterData.reports);
     const reportContents = this.generateReportContents(newsletterData.reports);
+    const { shusaiKyosaiToc, shusaiKyosaiContent } = this.processShusaiKyosaiEvents(newsletterData.shusai_kyosai_events);
     const { awardToc, awardContent } = this.processAward(newsletterData.awards);
 
     return {
@@ -124,7 +154,6 @@ export class TemplateService {
       no_month: newsletterData.no_month,
       publication_date: newsletterData.publication_date,
       editor_name: newsletterData.editor_name,
-      shusai_kyosai_events: newsletterData.shusai_kyosai_events,
       kyosan_events: newsletterData.kyosan_events,
       journal_cfps: newsletterData.journal_cfps,
       international_cfps: newsletterData.international_cfps,
@@ -133,6 +162,10 @@ export class TemplateService {
       // 参加報告関連の特別フィールド
       report_title_list: reportTitlesForToc,
       report_contents: reportContents,
+
+      // 主催共催イベントに関するご案内
+      shusai_kyosai_events_toc: shusaiKyosaiToc,
+      shusai_kyosai_events: shusaiKyosaiContent,
 
       // 賞に関するご案内
       award_toc: awardToc,

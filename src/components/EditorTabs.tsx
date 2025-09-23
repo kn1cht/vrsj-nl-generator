@@ -299,6 +299,7 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
             <h3>関連情報</h3><br />
             <div className="form-group form-container">
               <label htmlFor="journal_cfps">論文誌特集号</label>
+              <p>https://vrsj.org/transaction/special_issue/</p><br />
               <textarea
                 id="journal_cfps"
                 name="journal_cfps"
