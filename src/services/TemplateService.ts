@@ -41,6 +41,12 @@ export class TemplateService {
       result = this.removeEmptyAwardLines(result);
     }
 
+    // 会員便りの処理
+    if (!newsletterData.member_news || newsletterData.member_news.trim() === '') {
+      // 入力がない場合は、対応する行を削除
+      result = this.removeEmptyMemberNewsLines(result);
+    }
+
     // トップレベル項目を置換
     const replacements = this.createReplacements(newsletterData);
 
@@ -82,13 +88,28 @@ export class TemplateService {
   }
 
   /**
+   * 空の会員便りを含む行を削除し、以降の番号を振り直す
+   */
+  private removeEmptyMemberNewsLines(template: string): string {
+    // 目次部分の削除
+    let result = template.replace(/^３\. 会員便り\n/gm, '');
+    // 本文部分の削除
+    result = result.replace(/-+\n３\. 会員便り\n-+\n\$\{member_news\}\n+/gm, '');
+    
+    // ４. 関連情報を３. 関連情報に振り直し
+    result = result.replace(/^４\. 関連情報/gm, '３. 関連情報');
+    
+    return result;
+  }
+
+  /**
    * 目次部分の参加報告タイトルと筆者を生成
    */
   private generateReportTitlesForToc(reports: ReportEntry[]): string {
     let reportTitlesForToc = '';
     reports.forEach((report, index) => {
       if (index > 0) reportTitlesForToc += '\n';
-      reportTitlesForToc += `　◆ ${report.title}\n　　${report.author}`;
+      reportTitlesForToc += `\u3000◆ ${report.title}\n\u3000\u3000${report.author}`;
     });
     return reportTitlesForToc;
   }
@@ -158,6 +179,7 @@ export class TemplateService {
       journal_cfps: newsletterData.journal_cfps,
       international_cfps: newsletterData.international_cfps,
       international_conferences: newsletterData.international_conferences,
+      member_news: newsletterData.member_news,
 
       // 参加報告関連の特別フィールド
       report_title_list: reportTitlesForToc,

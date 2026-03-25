@@ -26,6 +26,8 @@ export interface NewsletterData {
   // 関連情報
   international_cfps: string;
   international_conferences: string;
+  // 会員便り
+  member_news: string;
 }
 
 /**
@@ -58,6 +60,8 @@ export function createInitialNewsletterData(
     journal_cfps: '',
     // 関連情報
     international_cfps: '',
-    international_conferences: ''
+    international_conferences: '',
+    // 会員便り
+    member_news: ''
   };
 }

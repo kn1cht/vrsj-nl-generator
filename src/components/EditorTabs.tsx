@@ -13,7 +13,7 @@ import { japaneseParenthesesRule } from '../rules/japaneseParenthesesRule';
 import { createPastDateRule } from '../rules/pastDateRule';
 
 import type { TextRule } from '../types/TextRule';
-export type EditorSubTab = 'main' | 'report' | 'events' | 'info';
+export type EditorSubTab = 'main' | 'report' | 'events' | 'member_news' | 'info';
 
 interface EditorTabsProps {
   activeEditorSubTab: EditorSubTab;
@@ -48,19 +48,21 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
       'awards',
       'journalCfps',
       'internationalCfps',
-      'internationalConferences'
-    ];
-    const rules: Record<string, TextRule> = {};
-    ruleNames.forEach(name => {
+      'internationalConferences',
+      'memberNews'
+      ];
+      const rules: Record<string, TextRule> = {};
+      ruleNames.forEach(name => {
       rules[name] = createPastDateRule(
         newsletterData.publication_year,
         newsletterData.no_month,
         newsletterData.publication_date
       );
-    });
-    
-    return rules;
+      });
+
+      return rules;
   }, [newsletterData.publication_year, newsletterData.no_month, newsletterData.publication_date]);
+  
   // 発行日が土日祝日かどうかを判定する
   const checkPublicationDate = () => {
     const year = parseInt(newsletterData.publication_year, 10);
@@ -316,6 +318,41 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
             </div>
           </section>
         );
+      case 'member_news':
+        return (
+          <section className="input-section">
+            <h3>会員便り</h3><br />
+            <div className="form-group form-container">
+              <label htmlFor="member_news">会員便り</label>
+              <textarea
+                id="member_news"
+                name="member_news"
+                value={newsletterData.member_news}
+                onChange={handleInputChange}
+                placeholder="会員便りの情報をここに入力してください"
+                rows={10}
+              />
+              <div className="rules-section-inline">
+                <TextRules
+                  text={newsletterData.member_news}
+                  rules={[
+                    fullWidthAlphanumericRule,
+                    paragraphSpacingRule,
+                    paragraphIndentRule,
+                    punctuationRule,
+                    urlFormatRule,
+                    parenthesesPairRule,
+                    japaneseParenthesesRule,
+                    pastDateRules.memberNews
+                  ]}
+                  onApplyFix={(fixedContent: string) => {
+                    setNewsletterData(prev => ({...prev, member_news: fixedContent}));
+                  }}
+                />
+              </div>
+            </div>
+          </section>
+        );
       case 'info':
         return (
           <section className="input-section">
@@ -411,6 +448,12 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
             onClick={() => setActiveEditorSubTab('events')}
           >
             行事情報
+          </button>
+          <button
+            className={`editor-subtab ${activeEditorSubTab === 'member_news' ? 'active' : ''}`}
+            onClick={() => setActiveEditorSubTab('member_news')}
+          >
+            会員便り
           </button>
           <button
             className={`editor-subtab ${activeEditorSubTab === 'info' ? 'active' : ''}`}
