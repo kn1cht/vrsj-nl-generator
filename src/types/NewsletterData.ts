@@ -28,6 +28,9 @@ export interface NewsletterData {
   international_conferences: string;
   // 会員便り
   member_news: string;
+  // テンプレート設定 (エクスポート/インポート用)
+  template_chair?: string;
+  template_committee?: string;
 }
 
 /**

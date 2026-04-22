@@ -177,7 +177,12 @@ function App() {
   };
 
   const exportToJson = () => {
-    const dataStr = JSON.stringify(newsletterData, null, 2);
+    const exportData = {
+      ...newsletterData,
+      template_chair: chairContent,
+      template_committee: committeeContent
+    };
+    const dataStr = JSON.stringify(exportData, null, 2);
     const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
 
     const exportFileDefaultName = `newsletter-${new Date().toISOString().slice(0, 10)}.json`;
@@ -197,6 +202,12 @@ function App() {
           try {
             const imported = JSON.parse(e.target.result) as NewsletterData;
             setNewsletterData(imported);
+            if (imported.template_chair) {
+              setChairContent(imported.template_chair);
+            }
+            if (imported.template_committee) {
+              setCommitteeContent(imported.template_committee);
+            }
           } catch (error) {
             console.error('JSONファイルの解析エラー:', error);
             alert('JSONファイルの解析に失敗しました。');
