@@ -22,6 +22,7 @@
   --primary-hover: #60a5fa;
   --border-color: #4b5563;
   --shadow-color: rgba(0, 0, 0, 0.3);
+  --content-width: 800px;
 }
 
 body {
@@ -37,6 +38,7 @@ body {
 
 #root {
   max-width: 1600px;
+  min-width: 0;
   margin: 0 auto;
   padding: 2rem;
   box-sizing: border-box;
@@ -44,6 +46,8 @@ body {
 
 .app-container {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   text-align: left;
   display: flex;
   flex-direction: column;
@@ -53,10 +57,12 @@ main {
   display: flex;
   flex-direction: column;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .main-content {
-  min-width: 750px;
+  min-width: var(--content-width);
 }
 
 header {
@@ -102,11 +108,14 @@ header h1 {
   flex-wrap: wrap;
   gap: 2rem;
   width: 100%;
+  max-width: 100%;
+  min-width: var(--content-width);
 }
 
 .editor-section {
   flex: 2;
-  min-width: 800px;
+  width: 100%;
+  min-width: var(--content-width);
   display: flex;
   flex-direction: column;
 }
@@ -222,9 +231,16 @@ header h1 {
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 4px 6px var(--shadow-color);
-  width: 100%;
+  flex: 0 0 var(--content-width);
+  width: var(--content-width);
+  inline-size: var(--content-width);
+  max-width: 100%;
+  max-inline-size: 100%;
+  min-width: 0;
+  min-inline-size: 0;
   box-sizing: border-box;
-  overflow: hidden;
+  contain: inline-size;
+  overflow: visible;
   margin-top: 0rem;
   margin-bottom: 1rem;
 }
@@ -262,36 +278,56 @@ header h1 {
   border-color: #ef4444;
 }
 
+.newsletter-preview-shell {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
 .newsletter-preview {
   background-color: var(--bg-color);
-  padding: 1.5rem;
+  padding: 1.5rem 5rem 1.5rem 1.5rem;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  margin-bottom: 1.5rem;
+  width: 100%;
+  inline-size: 100%;
+  max-width: 100%;
+  max-inline-size: 100%;
+  min-width: 0;
+  min-inline-size: 0;
+  box-sizing: border-box;
+  contain: inline-size;
   white-space: pre-wrap;
   font-family: ui-sans-serif, system-ui, sans-serif;
   line-height: 1.6;
   color: var(--text-color);
   word-wrap: break-word;
   overflow-wrap: break-word;
-  max-width: 100%;
-  overflow-x: hidden;
-  position: relative;
+  max-height: min(70vh, 720px);
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 .newsletter-preview pre {
+  display: block;
+  width: 100%;
+  inline-size: 100%;
+  max-width: 100%;
+  max-inline-size: 100%;
+  min-width: 0;
+  min-inline-size: 0;
+  margin: 0;
   white-space: pre-wrap;
   word-wrap: break-word;
-  overflow-wrap: break-word;
-  max-width: 100%;
-  overflow-x: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  overflow-x: auto;
 }
 
 /* コピーボタンスタイル */
 .copy-button {
   position: absolute;
   top: 0.5rem;
-  right: 0.5rem;
+  right: 1.25rem;
   background-color: var(--bg-secondary);
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
@@ -449,8 +485,16 @@ header h1 {
 /* タブ */
 .tabs {
   display: flex;
+  flex: 0 0 100%;
   margin-bottom: 0.25rem;
   border-bottom: 1px solid var(--border-color);
+}
+
+.tab-content-panel {
+  flex: 0 0 var(--content-width);
+  width: var(--content-width);
+  max-width: 100%;
+  min-width: 0;
 }
 
 .tab {
@@ -469,8 +513,15 @@ header h1 {
 }
 
 /* データ関連 */
+.settings-container {
+  width: 100%;
+  min-width: 0;
+}
+
 .data-section {
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   display: flex;
   justify-content: center;
   gap: 1rem;

@@ -314,7 +314,9 @@ function App() {
           </button>
         </div>
 
-        {renderTabContent()}
+        <div className="tab-content-panel">
+          {renderTabContent()}
+        </div>
 
         {generatedNewsletter && (
           <section className="output-section">
@@ -328,7 +330,7 @@ function App() {
                 ✕
               </button>
             </div>
-            <div className="newsletter-preview">
+            <div className="newsletter-preview-shell">
               <button
                 onClick={copyToClipboard}
                 className={`copy-button ${isCopied ? 'copied' : ''}`}
@@ -345,7 +347,9 @@ function App() {
                   </>
                 )}
               </button>
-              <pre>{generatedNewsletter}</pre>
+              <div className="newsletter-preview">
+                <pre>{generatedNewsletter}</pre>
+              </div>
             </div>
           </section>
         )}
