@@ -539,6 +539,26 @@ header h1 {
   gap: 1rem;
 }
 
+.line-break-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+}
+
+.line-break-option input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--primary-color);
+  cursor: pointer;
+}
+
 .text-gen-btn, 
 .web-gen-btn {
   flex: 1;

@@ -26,6 +26,9 @@ interface EditorTabsProps {
   removeReport: (index: number) => void;
   moveReport: (index: number, direction: 'up' | 'down') => void;
   generateNewsletter: (formatForText?: boolean) => void;
+  enableTextLineBreaks: boolean;
+  setEnableTextLineBreaks: (enabled: boolean) => void;
+  lineBreakChars: number;
 }
 
 const EditorTabs: React.FC<EditorTabsProps> = ({
@@ -38,7 +41,10 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
   addReport,
   removeReport,
   moveReport,
-  generateNewsletter
+  generateNewsletter,
+  enableTextLineBreaks,
+  setEnableTextLineBreaks,
+  lineBreakChars
 }) => {
   // 各セクション用に独立したpastDateRuleインスタンスを作成（発行日を渡す）
   const pastDateRules = React.useMemo(() => {
@@ -476,6 +482,14 @@ const EditorTabs: React.FC<EditorTabsProps> = ({
               Web用に生成
             </button>
           </div>
+          <label className="line-break-option">
+            <input
+              type="checkbox"
+              checked={enableTextLineBreaks}
+              onChange={(e) => setEnableTextLineBreaks(e.target.checked)}
+            />
+            <span>{lineBreakChars}文字を基準に改行</span>
+          </label>
         </div>
       </div>
     </div>

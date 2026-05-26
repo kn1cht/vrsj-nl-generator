@@ -24,6 +24,7 @@ function App() {
   const [generatedNewsletter, setGeneratedNewsletter] = useState<string>('');
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [formatSettings, setFormatSettings] = useState<FormatSettings>(DEFAULT_FORMAT_SETTINGS);
+  const [enableTextLineBreaks, setEnableTextLineBreaks] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [chairContent, setChairContent] = useState(chairDefaultContent);
   const [committeeContent, setCommitteeContent] = useState(committeeDefaultContent);
@@ -150,7 +151,7 @@ function App() {
   const generateNewsletter = (formatForText = false) => {
     try {
       let result;
-      if (formatForText) {
+      if (formatForText && enableTextLineBreaks) {
         result = templateService.generateNewsletter(
           newsletterData,
           formatTextForMail,
@@ -233,6 +234,9 @@ function App() {
             removeReport={removeReport}
             moveReport={moveReport}
             generateNewsletter={generateNewsletter}
+            enableTextLineBreaks={enableTextLineBreaks}
+            setEnableTextLineBreaks={setEnableTextLineBreaks}
+            lineBreakChars={formatSettings.maxCharsPerLine}
           />
         );
       case 'settings':
